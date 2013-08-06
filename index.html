@@ -6,18 +6,29 @@
 </head>
 
 <body>
- <ul data-bind="foreach: todo" >
-  <li>
-    <span data-bind = "text: title"></span>
-    <button data-bind = "click: $parent.removeTodo">removeTodo</button>
-    <button data-bind = "click: addItem">add</button>
-    <ul data-bind="foreach: items">
-      <li data-bind="text: $data"></li>
-      <button data-bind="click: $parent.removeItem">remove</button>
-    </ul>
-  </li>
- </ul>
- <button data-bind="click: addTodo">Add new</button>
+  <!-- ko foreach: todo -->
+  <table >
+    <tr>
+      <th data-bind = "text: title"/>
+        <td>
+          <button data-bind = "click: $parent.removeTodo">Remove Todo</button>
+          <button data-bind = "click: addItem">add item</button>
+        </td>
+      </th>
+    </tr>
+    <!-- ko foreach: items -->
+    <tr>
+        <td data-bind="text: $data"/>
+        <td><button data-bind="click: $parent.removeItem">remove</button></td>
+    </tr>
+    <!-- /ko -->
+  </table>
+  <!-- /ko -->
+  <form data-bind="submit: addTodo">
+    Add Todo
+    <input data-bind="value: todoToAdd"></input>
+    <button type="submit">Add</button>
+  </form>
 </body>
 
 
@@ -31,22 +42,25 @@
   this.addItem = function() {
     self.items.push(this);
   }
-  this.removeItem = function() {
-    console.log("got here");
-    self.items.remove(this);
+  this.removeItem = function(item) {
+    self.items.remove(item);
   }
  }
 
 //test data of viewModel
 function TodosViewModel() {
   var self = this;
+  this.todoToAdd = ko.observable("");
   this.todo = ko.observableArray([
     new Todo("testdata", [1,2,3,4]),
     new Todo("2ndTestData", [5,6,7,8])
   ]);
 
-  this.addTodo = function(title, items){
-    self.todo.push(new Todo("newtodo", ["item1","item2"]));
+  this.addTodo = function(){
+    if (self.todoToAdd() != "") {
+      self.todo.push(new Todo(self.todoToAdd()));
+      self.todoToAdd("");
+    }
   }
 
   this.removeTodo = function(){
