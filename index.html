@@ -6,56 +6,70 @@
 </head>
 
 <body>
-  <!-- ko foreach: todo -->
-  <table >
-    <tr>
-      <th data-bind = "text: title"/>
-        <td>
-          <button data-bind = "click: $parent.removeTodo">Remove Todo</button>
-          <button data-bind = "click: addItem">add item</button>
-        </td>
-      </th>
-    </tr>
-    <!-- ko foreach: items -->
-    <tr>
-        <td data-bind="text: $data"/>
-        <td><button data-bind="click: $parent.removeItem">remove</button></td>
-    </tr>
+  <div>
+    <!-- ko foreach: todo -->
+    <table >
+      <tr>
+        <th data-bind = "text: title"/>
+          <td>
+            <button data-bind = "click: $parent.removeTodo">Remove Todo</button>
+            <button data-bind = "click: addItem">add item</button>
+          </td>
+        </th>
+      </tr>
+      <!-- ko foreach: items -->
+      <tr>
+          <td> 
+            <input data-bind="value: desc, valueUpdate: 'afterkeydown'"/>
+          </td>
+          <td data-bind="text: desc"/>
+          <td><button data-bind="click: $parent.removeItem">remove</button></td>
+      </tr>
+      <!-- /ko -->
+    </table>
     <!-- /ko -->
-  </table>
-  <!-- /ko -->
+  </div>
   <form data-bind="submit: addTodo">
     Add Todo
-    <input data-bind="value: todoToAdd"></input>
-    <button type="submit">Add</button>
+    <input data-bind="value: todoToAdd, valueUpdate: 'afterkeydown'"></input>
+    <button type="submit" data-bind= "enable: todoToAdd().length > 0">Add</button>
+    <p data-bind="text: todoToAdd"/>
   </form>
 </body>
 
 
 <script>
- var Todo = function(title, items){
+// the Todo object, which represents a list of items
+ var Todo = function(title){
   var self=this;
   this.title = ko.observable(title);
-  this.items = ko.observableArray(items);
+  this.items = ko.observableArray([new Item("first"), new Item("second")]);
 
 //add and remove items to todo list
   this.addItem = function() {
-    self.items.push(this);
+    self.items.push(new Item(""));
   }
   this.removeItem = function(item) {
     self.items.remove(item);
   }
  }
 
-//test data of viewModel
+//the Item object, which makes up a todo list
+var Item = function(desc) {
+  this.desc = ko.observable(desc);
+  this.checked = ko.observable(false);
+}
+
+//viewModel
 function TodosViewModel() {
   var self = this;
   this.todoToAdd = ko.observable("");
   this.todo = ko.observableArray([
-    new Todo("testdata", [1,2,3,4]),
+    new Todo("testdata", ['1','2','3','4']),
     new Todo("2ndTestData", [5,6,7,8])
   ]);
 
+//add and remove todo lists
   this.addTodo = function(){
     if (self.todoToAdd() != "") {
       self.todo.push(new Todo(self.todoToAdd()));
